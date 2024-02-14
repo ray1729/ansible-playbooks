@@ -86,6 +86,7 @@
     - name: Install packages from APT
       apt:
         package:
+          - asciinema
           - certbot
           - clamav-daemon
           - containerd.io
