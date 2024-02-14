@@ -1,0 +1,16 @@
+---
+- name: Install Tutanota Desktop
+  ansible.builtin.get_url:
+    url: https://mail.tutanota.com/desktop/tutanota-desktop-linux.AppImage
+    dest: /usr/local/bin/tutanota
+    owner: root
+    group: root
+    mode: 0755
+# - name: Create Desktop file
+#   ansible.builtin.copy:
+#     src: tutanota.desktop
+#     dest: /usr/lib/applications/
+#     owner: root
+#     group: root
+#     mode: 0644
+

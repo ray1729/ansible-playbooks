@@ -1,0 +1,16 @@
+---
+  - name: Install Python dependencies
+    ansible.builtin.apt:
+      package:
+        - python3
+        - python3-pip
+        - python3-venv
+  - name: Install NodeJS
+    community.general.snap:
+      name: node
+      channel: "20/stable"
+      classic: true
+  - name: Install AWS CDK
+    community.general.npm:
+      name: aws-cdk
+      global: true

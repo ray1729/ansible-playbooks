@@ -1,0 +1,356 @@
+---
+- hosts: localhost
+  become: true
+  vars:
+    golang:
+      version: 1.21.3
+      checksum: sha256:1241381b2843fae5a9707eec1f8fb2ef94d827990582c7c7c32f5bdfbfd420c8
+    terraform:
+      version: 1.5.7
+      checksum: sha256:c0ed7bc32ee52ae255af9982c8c88a7a4c610485cf1d55feeb037eab75fa082c
+    packer:
+      version: 1.4.3
+      checksum: sha256:c89367c7ccb50ca3fa10129bbbe89273fba0fa6a75b44e07692a32f92b1cbf55
+    docker_compose:
+      version: 1.25.3
+    clj:
+      version: 1.11.1.1347
+    flyway:
+      version: 8.2.2
+      checksum: sha1:f032847a4a91bf4b3878cdb59b7d12b7f64ed0cc
+    aws_vault:
+      version: 7.2.0
+  roles:
+    - role: aws-cli
+      tags: [aws, aws-cli]
+    - role: aws-cdk
+      tags: [aws, aws-cdk]
+    - role: tutanota-desktop
+      tags: tuta
+  tasks:
+    - name: Set timezone
+      timezone:
+        name: Europe/London
+      tags:
+        - system
+    - name: Add APT key for Google cloud packages
+      apt_key:
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+      tags:
+        - apt
+    - name: Configure APT repository for Google cloud SDK
+      apt_repository:
+        filename: google-cloud-sdk
+        repo: deb https://packages.cloud.google.com/apt cloud-sdk-bionic main
+      tags:
+        - apt
+    - name: Add APT key for Signal packages
+      apt_key:
+        url: https://updates.signal.org/desktop/apt/keys.asc
+      tags:
+        - apt
+        - signal
+    - name: Configure APT repository for Signal desktop
+      apt_repository:
+        filename: signal-desktop
+        repo: deb [arch=amd64] https://updates.signal.org/desktop/apt xenial main
+      tags:
+        - apt
+        - signal
+    - name: Configure APT key for Docker
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+      tags:
+        - apt
+    - name: Configure APT repository for Docker
+      apt_repository:
+        filename: docker
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ansible_distribution_release}} stable
+      tags:
+        - apt
+        - docker
+    - name: Update APT cache and perform dist upgrade
+      apt:
+        update_cache: true
+        upgrade: dist
+      tags:
+        - apt
+    - name: Remove redundant APT packages
+      apt:
+        package:
+          - openvpn
+          - openvpn-systemd-resolved
+        state: absent
+      tags:
+        - apt
+    - name: Install packages from APT
+      apt:
+        package:
+          - certbot
+          - clamav-daemon
+          - containerd.io
+          - curl
+          - dict
+          - docker-ce
+          - docker-ce-cli
+          - firetools
+          - fonts-powerline
+          - git
+          - git-credential-gopass
+          - git-lfs
+          - google-cloud-sdk
+          - gopass
+          - graphviz
+          - gufw
+          - imagemagick-6.q16
+          - jq
+          - keepassx
+          - libpostgresql-jdbc-java
+          - net-tools
+          - nmap
+          - openjdk-8-jdk
+          - openssl
+          - pass
+          - postgresql-client-12
+          - pwgen
+          - python3-pip
+          - python3-pytest
+          - python3-yapf
+          - python3-venv
+          - rlwrap
+          - signal-desktop
+          - tree
+          - uuid
+          - wait-for-it
+          - yamllint
+      tags:
+        - apt
+        - apt-install
+    - name: Install Emacs packages from APT
+      apt:
+        package:
+          - emacs
+          - elpa-aggressive-indent
+          - elpa-cider
+          - elpa-clojure-mode
+          - elpa-clojure-mode-extra-font-locking
+          - elpa-flycheck
+          - elpa-gitconfig-mode
+          - elpa-gitignore-mode
+          - elpa-go-mode
+          - elpa-magit
+          - elpa-markdown-mode
+          - elpa-paredit
+          - elpa-rainbow-delimiters
+          - elpa-systemd
+          - elpa-use-package
+          - elpa-which-key
+          - yaml-mode
+      tags:
+        - emacs
+    - name: Download go {{golang.version}}
+      get_url:
+        url: https://dl.google.com/go/go{{golang.version}}.linux-amd64.tar.gz
+        checksum: "{{golang.checksum}}"
+        dest: /var/tmp/go{{golang.version}}.linux-amd64.tar.gz
+      register: go_archive
+      tags:
+        - archives
+        - golang
+    - name: Create /usr/local/go-{{golang.version}}
+      file:
+        path: /usr/local/go-{{golang.version}}
+        state: directory
+      tags:
+        - archives
+        - golang
+    - name: Extract go {{golang.version}}
+      unarchive:
+        src: "{{go_archive.dest}}"
+        dest: /usr/local/go-{{golang.version}}
+        creates: /usr/local/go-{{golang.version}}/go
+      tags:
+        - archives
+        - golang
+    - name: Symlink go version
+      file:
+        src: /usr/local/go-{{golang.version}}/go
+        dest: /usr/local/go
+        state: link
+        force: true
+      tags:
+        - golang
+    - name: Download flyway {{flyway.version}}
+      get_url:
+        url: https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/{{flyway.version}}/flyway-commandline-{{flyway.version}}-linux-x64.tar.gz
+        checksum: "{{flyway.checksum}}"
+        dest: /var/tmp/flyway-commandline-{{flyway.version}}-linux-x64.tar.gz
+      register: flyway_archive
+      tags:
+        - archives
+        - flyway
+    - name: Extract flyway {{flyway.version}}
+      unarchive:
+        src: "{{flyway_archive.dest}}"
+        dest: /usr/local
+      tags:
+        - archives
+        - flyway
+    - name: Fix flyway executable permissions
+      file:
+        path: /usr/local/flyway-{{flyway.version}}/flyway
+        mode: 0755
+      tags:
+        - flyway
+    - name: Create symlink to flyway executable
+      file:
+        path: /usr/local/bin/flyway
+        state: link
+        src: /usr/local/flyway-{{flyway.version}}/flyway
+      tags:
+        - flyway
+    - name: Download terraform {{terraform.version}}
+      get_url:
+        url: https://releases.hashicorp.com/terraform/{{terraform.version}}/terraform_{{terraform.version}}_linux_amd64.zip
+        checksum: "{{terraform.checksum}}"
+        dest: /var/tmp/terraform_{{terraform.version}}_linux_amd64.zip
+      register: tf_archive
+      tags:
+        - archives
+        - terraform
+    - name: Install terraform {{terraform.version}}
+      unarchive:
+        src: "{{tf_archive.dest}}"
+        dest: /usr/local/bin/
+        creates: /usr/local/bin/terraform
+      tags:
+        - archives
+        - terraform
+    - name: Download packer {{packer.version}}
+      get_url:
+        url: https://releases.hashicorp.com/packer/{{packer.version}}/packer_{{packer.version}}_linux_amd64.zip
+        checksum: "{{packer.checksum}}"
+        dest: /var/tmp/packer_{{packer.version}}_linux_amd64.zip
+      register: packer_archive
+      tags:
+        - archives
+    - name: Install packer {{packer.version}}
+      unarchive:
+        src: "{{packer_archive.dest}}"
+        dest: /usr/local/bin/
+        creates: /usr/local/bin/packer
+      tags:
+        - archives
+    - name: Fetch and install docker-compose {{docker_compose.version}}
+      get_url:
+        url: https://github.com/docker/compose/releases/download/{{docker_compose.version}}/docker-compose-{{ansible_system}}-{{ansible_architecture}}
+        dest: /usr/local/bin/docker-compose
+        owner: root
+        group: root
+        mode: 0755
+      tags:
+        - archives
+    - name: Add ray to docker group
+      user:
+        name: ray
+        groups:
+          - docker
+        append: True
+      tags:
+        - system
+    - name: Create /usr/local/lib/java
+      file:
+        path: /usr/local/lib/java
+        state: directory
+        owner: root
+        group: root
+        mode: 0755
+    - name: Download Clojure {{clj.version}}
+      get_url:
+        url: https://download.clojure.org/install/linux-install-{{clj.version}}.sh
+        dest: /tmp/linux-install-{{clj.version}}.sh
+        owner: root
+        group: root
+        mode: 0755
+      tags:
+        - clj
+    - name: Install Clojure {{clj.version}}
+      command: /tmp/linux-install-{{clj.version}}.sh
+      args:
+        creates: /usr/local/bin/clj
+      tags:
+        - clj
+    - name: Download SchemaSpy
+      get_url:
+        url: https://github.com/schemaspy/schemaspy/releases/download/v6.1.0/schemaspy-6.1.0.jar
+        dest: /usr/local/lib/java
+      tags:
+        - schemaspy
+      register: schemaspy
+    - name: Create SchemaSpy wrapper
+      copy:
+        dest: /usr/local/bin/schemaspy
+        mode: 0755
+        content: |
+          #!/bin/bash
+          exec java -jar {{schemaspy.dest}} "$@"
+      tags:
+        - schemaspy
+    - name: Install Python packages
+      pip:
+        name:
+          - boto
+          - boto3
+          - jwcrypto
+          - powerline-shell
+          - ruff
+        state: latest
+      tags:
+        - python
+    - name: Install VSCode
+      snap:
+        name: code
+        classic: True
+      tags:
+        - vscode
+    - name: Install Leiningen
+      get_url:
+        url: https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein
+        dest: /usr/local/bin/lein
+        mode: 0755
+      tags:
+        - lein
+    - name: Install node
+      snap:
+        name: node
+        classic: True
+        channel: "14/stable"
+    - name: Install sqlc
+      snap:
+        name: sqlc
+    - name: Remove closh
+      file:
+        path: /usr/local/lib/java/closh-zero.jar
+        state: absent
+    - name: Remove closh wrapper
+      file:
+        path: /usr/local/bin/closh
+        state: absent
+        owner: root
+    - name: Install AWS vault v{{aws_vault.version}}
+      get_url:
+        url: https://github.com/99designs/aws-vault/releases/download/v{{aws_vault.version}}/aws-vault-linux-amd64
+        dest: /usr/local/bin/aws-vault
+        owner: root
+        group: root
+        mode: 0755
+        backup: True
+      tags:
+        - aws-vault
+    - name: Install Slack desktop
+      snap:
+        name:
+          - slack
+        channel: latest/stable
+      tags:
+        - slack
