@@ -28,3 +28,8 @@ actions. For example, to install just the AWS tools:
 ansible-playbook -t aws workstation.yml
 ```
 
+## Known deficiencies
+
+Some of the tasks use the `creates` argument to prevent them from running again when a target exists.
+This does not play nicely with upgrades - you want to replace the created file, but the `creates` argument
+suppresses it from running.
