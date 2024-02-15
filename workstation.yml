@@ -289,11 +289,6 @@
         mode: 0755
       tags:
         - lein
-    - name: Install node
-      snap:
-        name: node
-        classic: True
-        channel: "14/stable"
     - name: Install sqlc
       snap:
         name: sqlc
