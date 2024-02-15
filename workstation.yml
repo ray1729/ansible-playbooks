@@ -2,9 +2,6 @@
 - hosts: localhost
   become: true
   vars:
-    golang:
-      version: 1.21.3
-      checksum: sha256:1241381b2843fae5a9707eec1f8fb2ef94d827990582c7c7c32f5bdfbfd420c8
     terraform:
       version: 1.5.7
       checksum: sha256:c0ed7bc32ee52ae255af9982c8c88a7a4c610485cf1d55feeb037eab75fa082c
@@ -37,7 +34,13 @@
     - role: google-cloud-sdk
       tags: [gcloud]
     - role: tutanota-desktop
-      tags: tuta
+      tags: [tuta]
+    - role: golang
+      version: 1.22.0
+      checksum: sha256:f6c8a87aa03b92c4b0bf3d558e28ea03006eb29db78917daec5cfb6ec1046265
+      make_default: true
+      clean: true
+      tags: [golang]
   tasks:
     - name: Set timezone
       timezone:
@@ -117,38 +120,6 @@
           - yaml-mode
       tags:
         - emacs
-    - name: Download go {{golang.version}}
-      get_url:
-        url: https://dl.google.com/go/go{{golang.version}}.linux-amd64.tar.gz
-        checksum: "{{golang.checksum}}"
-        dest: /var/tmp/go{{golang.version}}.linux-amd64.tar.gz
-      register: go_archive
-      tags:
-        - archives
-        - golang
-    - name: Create /usr/local/go-{{golang.version}}
-      file:
-        path: /usr/local/go-{{golang.version}}
-        state: directory
-      tags:
-        - archives
-        - golang
-    - name: Extract go {{golang.version}}
-      unarchive:
-        src: "{{go_archive.dest}}"
-        dest: /usr/local/go-{{golang.version}}
-        creates: /usr/local/go-{{golang.version}}/go
-      tags:
-        - archives
-        - golang
-    - name: Symlink go version
-      file:
-        src: /usr/local/go-{{golang.version}}/go
-        dest: /usr/local/go
-        state: link
-        force: true
-      tags:
-        - golang
     - name: Download flyway {{flyway.version}}
       get_url:
         url: https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/{{flyway.version}}/flyway-commandline-{{flyway.version}}-linux-x64.tar.gz

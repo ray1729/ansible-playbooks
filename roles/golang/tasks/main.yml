@@ -1,0 +1,64 @@
+---
+- name: Delete archive
+  file:
+    path: /var/tmp/go{{golang.version}}.linux-amd64.tar.gz
+    state: absent
+  when: force
+- name: Delete extracted dir
+  file:
+    path: /usr/local/go-{{version}}
+  when: force
+- name: Download go {{version}}
+  get_url:
+    url: https://dl.google.com/go/go{{version}}.{{os}}-{{arch}}.tar.gz
+    checksum: "{{checksum}}"
+    dest: /var/tmp/go{{version}}.{{os}}-{{arch}}.tar.gz
+  register: go_archive
+- name: Create /usr/local/go-{{version}}
+  file:
+    path: /usr/local/go-{{version}}
+    state: directory
+- name: Extract go {{version}}
+  unarchive:
+    src: "{{go_archive.dest}}"
+    dest: "{{install_dir}}"
+    creates: "{{install_dir}}/go"
+- name: Symlink go version
+  file:
+    src: /usr/local/go-{{version}}/go
+    dest: /usr/local/go
+    state: link
+    force: true
+  when: make_default
+- name: Find old go archives
+  ansible.builtin.find:
+    path: /var/tmp
+    patterns:
+      - "go1.*.*.*.tar.gz"
+      - "go1.*.*.tar.gz"
+    depth: 1
+  register: go_archives
+  when: clean
+- name: Delete old go archives
+  ansible.builtin.file:
+    path: "{{item.path}}"
+    state: absent
+  when: clean and item.path != go_archive.dest
+  loop: "{{go_archives.files}}"
+- name: Find old go installs
+  ansible.builtin.find:
+    path: /usr/local
+    patterns: 
+      - "go-1.*.*"
+      - "go-1.*"
+    file_type: directory
+    depth: 1
+  register: go_installs
+  when: clean
+- name: Delete old go installs
+  ansible.builtin.file:
+    path: "{{item.path}}"
+    state: absent
+  when: clean and item.path != install_dir
+  loop: "{{go_installs.files}}"
+
