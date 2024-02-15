@@ -1,0 +1,18 @@
+---
+- name: Remove google-cloud-sdk APT package
+  ansible.builtin.apt:
+    pkg: google-cloud-sdk
+    state: absent
+- name: Remove google-cloud-sdk APT repository
+  ansible.builtin.apt_repository:
+    filename: google-cloud-sdk
+    repo: deb https://packages.cloud.google.com/apt cloud-sdk-bionic main
+    state: absent
+- name: Remove google-cloud-sdk APT key
+  ansible.builtin.apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    state: absent
+- name: Install google-cloud-sdk snap
+  community.general.snap:
+    name: google-cloud-cli
+    classic: true

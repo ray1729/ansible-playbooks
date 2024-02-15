@@ -21,10 +21,21 @@
     aws_vault:
       version: 7.2.0
   roles:
+    - role: apt-repos
+      tags: [apt, apt-repos]
+      repos:
+        - name: signal-desktop
+          key_url: https://updates.signal.org/desktop/apt/keys.asc
+          repo: deb [arch=amd64] https://updates.signal.org/desktop/apt xenial main
+        - name: docker
+          key_url:  https://download.docker.com/linux/ubuntu/gpg
+          repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ansible_distribution_release}} stable
     - role: aws-cli
       tags: [aws, aws-cli]
     - role: aws-cdk
       tags: [aws, aws-cdk]
+    - role: google-cloud-sdk
+      tags: [gcloud]
     - role: tutanota-desktop
       tags: tuta
   tasks:
@@ -33,48 +44,6 @@
         name: Europe/London
       tags:
         - system
-    - name: Add APT key for Google cloud packages
-      apt_key:
-        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
-      tags:
-        - apt
-    - name: Configure APT repository for Google cloud SDK
-      apt_repository:
-        filename: google-cloud-sdk
-        repo: deb https://packages.cloud.google.com/apt cloud-sdk-bionic main
-      tags:
-        - apt
-    - name: Add APT key for Signal packages
-      apt_key:
-        url: https://updates.signal.org/desktop/apt/keys.asc
-      tags:
-        - apt
-        - signal
-    - name: Configure APT repository for Signal desktop
-      apt_repository:
-        filename: signal-desktop
-        repo: deb [arch=amd64] https://updates.signal.org/desktop/apt xenial main
-      tags:
-        - apt
-        - signal
-    - name: Configure APT key for Docker
-      apt_key:
-        url: https://download.docker.com/linux/ubuntu/gpg
-      tags:
-        - apt
-    - name: Configure APT repository for Docker
-      apt_repository:
-        filename: docker
-        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ansible_distribution_release}} stable
-      tags:
-        - apt
-        - docker
-    - name: Update APT cache and perform dist upgrade
-      apt:
-        update_cache: true
-        upgrade: dist
-      tags:
-        - apt
     - name: Remove redundant APT packages
       apt:
         package:
@@ -99,7 +68,6 @@
           - git
           - git-credential-gopass
           - git-lfs
-          - google-cloud-sdk
           - gopass
           - graphviz
           - gufw

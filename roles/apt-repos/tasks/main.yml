@@ -1,0 +1,17 @@
+---
+- name: Add repository key
+  ansible.builtin.apt_key:
+    url: "{{ item.key_url }}"
+  loop: "{{ repos }}"
+- name: Configure repository
+  ansible.builtin.apt_repository:
+    filename: "{{ item.name }}"
+    repo: "{{ item.repo }}"
+  loop: "{{ repos }}"
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+- name: Dist upgrade
+  ansible.builtin.apt:
+    upgrade: dist
+  when: dist_upgrade
