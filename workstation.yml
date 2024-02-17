@@ -77,6 +77,7 @@
           - imagemagick-6.q16
           - jq
           - keepassx
+          - kopia
           - libpostgresql-jdbc-java
           - net-tools
           - nmap
