@@ -1,0 +1,4 @@
+packer:
+  version: 1.9.5
+  checksum: sha256:6f8272658a6d606583c2b3deaad272233db6e84a6ee651bf17a0d46d8cea4a9c
+

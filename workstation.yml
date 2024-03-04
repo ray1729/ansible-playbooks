@@ -5,9 +5,6 @@
     terraform:
       version: 1.5.7
       checksum: sha256:c0ed7bc32ee52ae255af9982c8c88a7a4c610485cf1d55feeb037eab75fa082c
-    packer:
-      version: 1.4.3
-      checksum: sha256:c89367c7ccb50ca3fa10129bbbe89273fba0fa6a75b44e07692a32f92b1cbf55
     docker_compose:
       version: 1.25.3
     clj:
@@ -41,6 +38,11 @@
       make_default: true
       clean: true
       tags: [golang]
+    - role: packer
+      tags: [packer]
+      packer:
+        version: 1.9.5
+        checksum: sha256:6f8272658a6d606583c2b3deaad272233db6e84a6ee651bf17a0d46d8cea4a9c
   tasks:
     - name: Set timezone
       timezone:
@@ -167,21 +169,6 @@
       tags:
         - archives
         - terraform
-    - name: Download packer {{packer.version}}
-      get_url:
-        url: https://releases.hashicorp.com/packer/{{packer.version}}/packer_{{packer.version}}_linux_amd64.zip
-        checksum: "{{packer.checksum}}"
-        dest: /var/tmp/packer_{{packer.version}}_linux_amd64.zip
-      register: packer_archive
-      tags:
-        - archives
-    - name: Install packer {{packer.version}}
-      unarchive:
-        src: "{{packer_archive.dest}}"
-        dest: /usr/local/bin/
-        creates: /usr/local/bin/packer
-      tags:
-        - archives
     - name: Fetch and install docker-compose {{docker_compose.version}}
       get_url:
         url: https://github.com/docker/compose/releases/download/{{docker_compose.version}}/docker-compose-{{ansible_system}}-{{ansible_architecture}}

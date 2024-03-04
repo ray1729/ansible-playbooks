@@ -1,0 +1,22 @@
+---
+- name: Check packer installation
+  ansible.builtin.stat:
+    path: /usr/local/bin/packer
+  register: packer_bin
+- name: Check installed version
+  ansible.builtin.command: /usr/local/bin/packer --version
+  register: current_version
+  when: packer_bin.stat.exists
+- name: Download packer {{packer.version}}
+  ansible.builtin.get_url:
+    url: https://releases.hashicorp.com/packer/{{packer.version}}/packer_{{packer.version}}_linux_amd64.zip
+    checksum: "{{packer.checksum}}"
+    dest: /tmp/packer_{{packer.version}}_linux_amd64.zip
+  register: packer_archive
+  when: current_version != packer.version
+- name: Install packer {{packer.version}}
+  ansible.builtin.unarchive:
+    src: "{{packer_archive.dest}}"
+    dest: /usr/local/bin/
+  when: current_version != packer.version
+
