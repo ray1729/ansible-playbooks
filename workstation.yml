@@ -30,8 +30,6 @@
       tags: [aws, aws-cdk]
     - role: google-cloud-sdk
       tags: [gcloud]
-    - role: tutanota-desktop
-      tags: [tuta]
     - role: golang
       version: 1.22.0
       checksum: sha256:f6c8a87aa03b92c4b0bf3d558e28ea03006eb29db78917daec5cfb6ec1046265
@@ -49,6 +47,12 @@
         name: Europe/London
       tags:
         - system
+    - name: Remove Tutanota Desktop
+      ansible.builtin.file:
+        path: /usr/local/bin/tutanota
+        state: absent
+      tags:
+        - cleanup
     - name: Remove redundant APT packages
       apt:
         package:
