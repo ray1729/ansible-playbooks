@@ -91,6 +91,7 @@
           - openssl
           - pass
           - postgresql-client-12
+          - pre-commit
           - pwgen
           - python3-pip
           - python3-pytest
