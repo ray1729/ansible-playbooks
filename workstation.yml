@@ -31,8 +31,8 @@
     - role: google-cloud-sdk
       tags: [gcloud]
     - role: golang
-      version: 1.22.0
-      checksum: sha256:f6c8a87aa03b92c4b0bf3d558e28ea03006eb29db78917daec5cfb6ec1046265
+      version: 1.22.2
+      checksum: sha256:5901c52b7a78002aeff14a21f93e0f064f74ce1360fce51c6ee68cd471216a17
       make_default: true
       clean: true
       tags: [golang]
