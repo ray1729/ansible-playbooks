@@ -101,6 +101,7 @@
           - signal-desktop
           - tree
           - uuid
+          - virt-manager
           - wait-for-it
           - yamllint
       tags:
@@ -188,6 +189,14 @@
         name: ray
         groups:
           - docker
+        append: True
+      tags:
+        - system
+    - name: Add ray to libvirt group
+      user:
+        name: ray
+        groups:
+          - libvirt
         append: True
       tags:
         - system
