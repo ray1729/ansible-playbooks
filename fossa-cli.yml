@@ -1,0 +1,34 @@
+---
+- hosts: localhost
+  become: true
+  vars:
+    fossa_version: "3.9.18"
+    fossa_sha256sum: "f769f374325516f0d4170e75db1e504e5b370445d71df2f76cd562b1f3c72813"
+  tasks:
+    - name: Create temporary working directory
+      ansible.builtin.tempfile:
+        state: directory
+      register: tmpdir
+    - name: Download tarball
+      ansible.builtin.get_url:
+        url: https://github.com/fossas/fossa-cli/releases/download/v{{fossa_version}}/fossa_{{fossa_version}}_linux_amd64.tar.gz
+        checksum: sha256:{{fossa_sha256sum}}
+        dest: "{{tmpdir.path}}/fossa_{{fossa_version}}_linux_amd64.tar.gz"
+      register: tarball
+    - name: Extract tarball
+      ansible.builtin.unarchive:
+        dest: "{{tmpdir.path}}"
+        src: "{{tarball.dest}}"
+        remote_src: true
+    - name: Install binary in /usr/local/bin
+      ansible.builtin.copy:
+        src: "{{tmpdir.path}}/fossa"
+        dest: /usr/local/bin/fossa
+        remote_src: true
+        owner: root
+        group: root
+        mode: 0755
+    - name: Clean up temporary files
+      ansible.builtin.file:
+        path: "{{tmpdir.path}}"
+        state: absent
