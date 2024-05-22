@@ -1,0 +1,34 @@
+---
+- hosts: localhost
+  become: true
+  tasks:
+    - name: Install Emacs Snap
+      community.general.snap:
+        classic: true
+        name: emacs
+- hosts: localhost
+  become: false
+  tasks:
+    - name: Create Doom Config Directory
+      ansible.builtin.file:
+        path: "{{ansible_user_dir}}/.doom.d"
+        state: dircetory
+    - name: Install Doom Config Files
+      ansible.builtin.copy:
+        src: files/doom/
+        dest: "{{ansible_user_dir}}/.doom.d/"
+    - name: Clone Doom Emacs
+      ansible.builtin.git:
+        repo: https://github.com/doomemacs/doomemacs.git
+        dest: "{{ansible_user_dir}}/.emacs.d"
+    - name: Run Doom Install
+      ansible.builtin.command: "{{ansible_user_dir}}/.emacs.d/bin/doom install"
+    - name: Work-around for geiser initialization bug
+      ansible.builtin.copy:
+        dest: "{{ansible_user_dir}}/.emacs.d/.local/etc/@/init.29.d/85-loaddefs.hacks.el"
+        content: |
+          ;; Work-around for bug with guile load order, see https://github.com/doomemacs/doomemacs/issues/7472
+          (require 'geiser-autoloads)
+          (require 'geiser-guile-autoloads)
+    - name: Run Doom Sync
+      ansible.builtin.comand: "{{ansible_user_dir}}/.emacs.d/bin/doom sync"

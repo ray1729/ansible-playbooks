@@ -107,28 +107,6 @@
       tags:
         - apt
         - apt-install
-    - name: Install Emacs packages from APT
-      apt:
-        package:
-          - emacs
-          - elpa-aggressive-indent
-          - elpa-cider
-          - elpa-clojure-mode
-          - elpa-clojure-mode-extra-font-locking
-          - elpa-flycheck
-          - elpa-gitconfig-mode
-          - elpa-gitignore-mode
-          - elpa-go-mode
-          - elpa-magit
-          - elpa-markdown-mode
-          - elpa-paredit
-          - elpa-rainbow-delimiters
-          - elpa-systemd
-          - elpa-use-package
-          - elpa-which-key
-          - yaml-mode
-      tags:
-        - emacs
     - name: Download flyway {{flyway.version}}
       get_url:
         url: https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/{{flyway.version}}/flyway-commandline-{{flyway.version}}-linux-x64.tar.gz
