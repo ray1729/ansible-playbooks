@@ -12,7 +12,7 @@
     - name: Create Doom Config Directory
       ansible.builtin.file:
         path: "{{ansible_user_dir}}/.doom.d"
-        state: dircetory
+        state: directory
     - name: Install Doom Config Files
       ansible.builtin.copy:
         src: files/doom/
@@ -21,6 +21,8 @@
       ansible.builtin.git:
         repo: https://github.com/doomemacs/doomemacs.git
         dest: "{{ansible_user_dir}}/.emacs.d"
+    - name: Run Doom Env
+      ansible.builtin.command: "{{ansible_user_dir}}/.emacs.d/bin/doom env"
     - name: Run Doom Install
       ansible.builtin.command: "{{ansible_user_dir}}/.emacs.d/bin/doom install"
     - name: Work-around for geiser initialization bug
@@ -31,4 +33,4 @@
           (require 'geiser-autoloads)
           (require 'geiser-guile-autoloads)
     - name: Run Doom Sync
-      ansible.builtin.comand: "{{ansible_user_dir}}/.emacs.d/bin/doom sync"
+      ansible.builtin.command: "{{ansible_user_dir}}/.emacs.d/bin/doom sync"
