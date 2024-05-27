@@ -64,6 +64,7 @@
     - name: Install packages from APT
       apt:
         package:
+          - age
           - asciinema
           - certbot
           - clamav-daemon
@@ -233,6 +234,12 @@
         classic: True
       tags:
         - vscode
+    - name: Install chezmoi
+      snap:
+        name: chezmoi
+        classic: True
+      tags:
+        - chezmoi
     - name: Install Leiningen
       get_url:
         url: https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein
