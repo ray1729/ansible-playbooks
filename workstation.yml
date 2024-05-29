@@ -58,7 +58,10 @@
         package:
           - openvpn
           - openvpn-systemd-resolved
+          - openjdk-8-jdk
+          - pass
         state: absent
+        autoremove: true
       tags:
         - apt
     - name: Install packages from APT
@@ -88,9 +91,8 @@
           - libpostgresql-jdbc-java
           - net-tools
           - nmap
-          - openjdk-8-jdk
+          - openjdk-11-jdk
           - openssl
-          - pass
           - postgresql-client-12
           - pre-commit
           - pwgen
@@ -276,3 +278,9 @@
         channel: latest/stable
       tags:
         - slack
+    - name: Install hoard
+      apt:
+        deb: "https://github.com/hyde46/hoard/releases/download/v1.4.2/hoard_1.4.2_amd64.deb"
+      tags:
+        - apt
+        - hoard
