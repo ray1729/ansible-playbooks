@@ -205,8 +205,6 @@
         - clj
     - name: Install Clojure {{clj.version}}
       command: /tmp/linux-install-{{clj.version}}.sh
-      args:
-        creates: /usr/local/bin/clj
       tags:
         - clj
     - name: Download SchemaSpy
