@@ -1,0 +1,21 @@
+---
+- name: Install gopass keyring
+  ansible.builtin.get_url:
+    dest: /usr/share/keyrings/gopass-archive-keyring.gpg
+    url: https://packages.gopass.pw/repos/gopass/gopass-archive-keyring.gpg
+- name: Configure gopass APT repository
+  ansible.builtin.copy:
+    dest: /etc/apt/sources.list.d/gopass.sources
+    content: |
+      Types: deb
+      URIs: https://packages.gopass.pw/repos/gopass
+      Suites: stable
+      Architectures: all amd64 arm64 armhf
+      Components: main
+      Signed-By: /usr/share/keyrings/gopass-archive-keyring.gpg
+- name: Install gopass
+  ansible.builtin.apt:
+    update_cache: true
+    pkg:
+      - gopass
+      - gopass-archive-keyring

@@ -24,6 +24,9 @@
         - name: docker
           key_url:  https://download.docker.com/linux/ubuntu/gpg
           repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ansible_distribution_release}} stable
+        - name: kopia
+          key_url: https://kopia.io/signing-key
+          repo: deb http://packages.kopia.io/apt/ stable main
     - role: aws-cli
       tags: [aws, aws-cli]
     - role: aws-cdk
@@ -41,6 +44,8 @@
       packer:
         version: 1.9.5
         checksum: sha256:6f8272658a6d606583c2b3deaad272233db6e84a6ee651bf17a0d46d8cea4a9c
+    - role: gopass
+      tags: [gopass]
   tasks:
     - name: Set timezone
       timezone:
@@ -79,9 +84,7 @@
           - firetools
           - fonts-powerline
           - git
-          - git-credential-gopass
           - git-lfs
-          - gopass
           - graphviz
           - gufw
           - imagemagick-6.q16
@@ -93,7 +96,7 @@
           - nmap
           - openjdk-11-jdk
           - openssl
-          - postgresql-client-12
+          - postgresql-client-14
           - pre-commit
           - pwgen
           - python3-pip
@@ -110,6 +113,9 @@
       tags:
         - apt
         - apt-install
+    - name: Install git-credential-gopass
+      apt:
+        deb: https://github.com/gopasspw/git-credential-gopass/releases/download/v1.15.13/git-credential-gopass_1.15.13_linux_amd64.deb
     - name: Download flyway {{flyway.version}}
       get_url:
         url: https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/{{flyway.version}}/flyway-commandline-{{flyway.version}}-linux-x64.tar.gz
