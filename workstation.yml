@@ -61,10 +61,11 @@
     - name: Remove redundant APT packages
       apt:
         package:
+          - nodejs                    # installed via snap
           - openvpn
           - openvpn-systemd-resolved
           - openjdk-8-jdk
-          - pass
+          - pass                      # prefer gopass
         state: absent
         autoremove: true
       tags:
