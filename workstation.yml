@@ -232,6 +232,7 @@
           - jwcrypto
           - powerline-shell
           - ruff
+          - "python-lsp-server[all]"
         state: latest
       tags:
         - python
