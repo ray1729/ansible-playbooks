@@ -290,3 +290,8 @@
       tags:
         - apt
         - hoard
+    - name: Install halloy
+      snap:
+        name: halloy
+      tags:
+        - halloy
