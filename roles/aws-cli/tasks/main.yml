@@ -8,19 +8,19 @@
       src: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
       dest: "{{ awscli_tmp.path }}"
       remote_src: True
-    when: awscli_tmp is defined
+    when: awscli_tmp is defined and awscli_tmp is not skipped
   - name: Check for existing AWS CLI installation
     ansible.builtin.stat:
       path: /usr/local/aws-cli/v2/current
     register: aws_cli_current
   - name: Install AWS CLI
     ansible.builtin.command: "{{ awscli_tmp.path }}/aws/install {{ ('--update') if aws_cli_current.stat.exists}}"
-    when: awscli_tmp is defined
+    when: awscli_tmp is defined and awscli_tmp is not skipped
   - name: Clean up AWS CLI temp directory
     ansible.builtin.file:
       path: "{{ awscli_tmp.path }}"
       state: absent
-    when: awscli_tmp is defined
+    when: awscli_tmp is defined and awscli_tmp is not skipped
   - name: Install AWS CLI Session Manager plugin
     ansible.builtin.apt:
       deb: https://s3.amazonaws.com/session-manager-downloads/plugin/latest/ubuntu_64bit/session-manager-plugin.deb
