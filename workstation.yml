@@ -97,6 +97,7 @@
           - nmap
           - openjdk-11-jdk
           - openssl
+          - podman
           - postgresql-client-14
           - pre-commit
           - pwgen
