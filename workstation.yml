@@ -76,7 +76,9 @@
           - age
           - asciinema
           - certbot
+          - cl-quicklisp
           - clamav-daemon
+          - cmake
           - containerd.io
           - curl
           - dict
@@ -93,6 +95,10 @@
           - keepassx
           - kopia
           - libpostgresql-jdbc-java
+          - libtool
+          - libvterm0
+          - libvterm-bin
+          - libvterm-dev
           - net-tools
           - nmap
           - openjdk-11-jdk
@@ -106,6 +112,7 @@
           - python3-yapf
           - python3-venv
           - rlwrap
+          - sbcl
           - signal-desktop
           - tree
           - uuid
