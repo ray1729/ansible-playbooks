@@ -94,6 +94,8 @@
           - jq
           - keepassx
           - kopia
+          - libacl1-dev
+          - libcap-dev
           - libpostgresql-jdbc-java
           - libtool
           - libvterm0
